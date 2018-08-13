@@ -9,14 +9,15 @@ import requests
 def run():
 	espn()
 	cbs()
+	sprtnews()
 
 def espn():
 	df = pd.read_html("http://www.espn.com/fantasy/football/story/_/page/18RanksPreseason300nonPPR/2018-fantasy-football-non-ppr-rankings-top-300")
 	data = df[1]
 	data.columns = ['Player', 'Pos', 'Team', 'PosRank']
 	data[['Rank','Player']] = data['Player'].str.split(' ', 1, expand=True)
-	data = data.set_index('Rank', drop=True)
-	print(data[[0]])
+	data = data.set_index('Rank', drop=False)
+	return data
 
 
 def cbs():
@@ -25,7 +26,7 @@ def cbs():
 	soup = BeautifulSoup(res.content, 'lxml')
 	data = soup.find('div', attrs = {'class': 'player-wrapper'})
 	players = data.find_all("div", ["player-row first", "player-row"])
-	for player in players[180:]:
+	for player in players:
 		rank = player.find('div', 'rank').contents[0]
 		a = player.find_all('div', 'player')[0].find_all('a')[0]
 		try:
@@ -39,5 +40,10 @@ def cbs():
 		entries.append([rank, name])
 
 	df = pd.DataFrame(entries, columns=['Rank', 'Name'])
-	print(df)
-run()
+	return df
+
+def sprtnews():
+	df = pd.read_html("http://www.sportingnews.com/us/fantasy/sport/news/fantasy-football-rankings-top-200-cheat-sheet-2018-best-players-projections-position-non-ppr-draft-strategy-sleepers-busts-tiers-draft-kit/qe9bb3ubkl7k1e5g23u60ixq9")
+	data = df[0]
+	
+#run()
